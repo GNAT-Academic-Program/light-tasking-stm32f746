@@ -1,0 +1,122 @@
+name = "light_tasking_stm32f746"
+description = "light-tasking runtime for the STM32F746 SoC"
+version = "15.0.0-dev"
+
+long-description = """
+## Usage
+
+First edit your `alire.toml` file and add the following elements:
+ - Add `light_tasking_stm32f746` in the dependency list:
+   ```toml
+   [[depends-on]]
+   light_tasking_stm32f746 = "*"
+   ```
+ - if applicable, apply any runtime configuration variables (see below).
+
+Then edit your project file to add the following elements:
+ - "with" the run-time project file. With this, gprbuild will compile the run-time before your application
+   ```ada
+   with "runtime_build.gpr";
+   ```
+ - Specify the `Target` and `Runtime` attributes:
+   ```ada
+      for Target use runtime_build'Target;
+      for Runtime ("Ada") use runtime_build'Runtime ("Ada");
+   ```
+ - specify the `Linker` switches:
+   ```ada
+   package Linker is
+     for Switches ("Ada") use Runtime_Build.Linker_Switches;
+   end Linker;
+   ```
+
+The runtime is configurable via Alire crate configuration variables.
+See the project website for full details of the available options.
+
+By default, the runtime configures the clock tree for a 216 MHz system clock
+from the high-speed internal (HSI) oscillator. If you want a different clock
+configuration, then use the crate configuration variables to specify the
+configuration you wish to use. For example, to configure the runtime to
+generate a 216 MHz system clock from an 8 MHz HSE crystal oscillator:
+```toml
+[configuration.values]
+# Configure an 8 MHz HSE crystal oscillator
+light_tasking_stm32f746.HSE_Clock_Frequency = 8000000
+light_tasking_stm32f746.HSE_Bypass = false
+
+# Select PLLCLK as the SYSCLK source
+light_tasking_stm32f746.SYSCLK_Src = "PLLCLK"
+
+# Configure the PLL VCO to run at 432 MHz from the 8 MHz HSE (fVCO = fHSE * (N/M))
+light_tasking_stm32f746.PLL_Src = "HSE"
+light_tasking_stm32f746.PLL_N_Mul = 432
+light_tasking_stm32f746.PLL_M_Div = 8
+
+# Configure SYSCLK (PLLP) to run at 216 MHz from the 336 MHz VCO.
+light_tasking_stm32f746.PLL_P_Div = "DIV2"
+
+# Configure PLLQ to run at 48 MHz for USB/SDIO/RNG domains.
+light_tasking_stm32f746.PLL_Q_Div = 9
+
+# Configure AHB/APB clocks
+light_tasking_stm32f746.AHB_Pre  = "DIV1"
+light_tasking_stm32f746.APB1_Pre = "DIV4"
+light_tasking_stm32f746.APB2_Pre = "DIV2"
+```
+
+The runtime will generate a compile time error when an invalid PLL configuration
+is set.
+
+By default the PLL's Q clock is enabled. If you don't need it, then you can
+disable it via the crate configuration:
+```toml
+[configuration.values]
+light_tasking_stm32f746.PLL_Q_Enable = false
+```
+
+The runtime will enable the PLL when `PLL_Q_Enable` is `true`, or when
+`SYSCLK_Src = "PLLCLK"`.
+
+The interrupt stack sizes are also configurable:
+```toml
+[configuration.values]
+light_tasking_stm32f746.Interrupt_Stack_Size = 1024
+light_tasking_stm32f746.Interrupt_Secondary_Stack_Size = 128
+```
+"""
+
+authors = ["AdaCore", "Daniel King", "Olivier Henley"]
+maintainers = ["Olivier Henley <olivier.henley@gmail.com>"]
+maintainers-logins = ["ohenley"]
+licenses = "GPL-3.0-or-later WITH GCC-exception-3.1"
+tags = ["embedded", "runtime", "stm32f7", "stm32f746"]
+website = "https://github.com/GNAT-Academic-Program/stm32f746-runtimes"
+
+project-files = ['runtime_build.gpr', 'ravenscar_build.gpr']
+
+[configuration]
+generate_c = false
+output_dir = "gnat_user"
+
+[configuration.variables]
+LSI_Enabled = { type = "Boolean", default = true }
+LSE_Enabled = { type = "Boolean", default = false }
+LSE_Bypass = { type = "Boolean", default = false }
+HSE_Bypass = { type = "Boolean", default = false }
+HSE_Clock_Frequency = { type = "Integer", first = 4000000, last = 26000000, default = 8000000 }
+PLL_Src = { type = "Enum", values = ["HSE", "HSI"], default = "HSI" }
+PLL_M_Div = { type = "Integer", first = 2, last = 63, default = 16 }
+PLL_N_Mul = { type = "Integer", first = 50, last = 432, default = 432 }
+PLL_P_Div = { type = "Enum", values = ["DIV2", "DIV4", "DIV6", "DIV8"], default = "DIV2" }
+PLL_Q_Div = { type = "Integer", first = 2, last = 15, default = 9 }
+PLL_Q_Enable = { type = "Boolean", default = true }
+SYSCLK_Src = { type = "Enum", values = ["HSI", "HSE", "PLLCLK"], default = "PLLCLK" }
+AHB_Pre = { type = "Enum", values = ["DIV1", "DIV2", "DIV4", "DIV8", "DIV16", "DIV64", "DIV128", "DIV256", "DIV512"], default = "DIV1" }
+APB1_Pre = { type = "Enum", values = ["DIV1", "DIV2", "DIV4", "DIV8", "DIV16"], default = "DIV4" }
+APB2_Pre = { type = "Enum", values = ["DIV1", "DIV2", "DIV4", "DIV8", "DIV16"], default = "DIV2" }
+
+Interrupt_Stack_Size = { type = "Integer", first = 1, default = 1024 }
+Interrupt_Secondary_Stack_Size = { type = "Integer", first = 1, default = 128 }
+
+[[depends-on]]
+gnat_arm_elf = "^15"
