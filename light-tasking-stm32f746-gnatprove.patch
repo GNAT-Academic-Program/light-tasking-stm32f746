@@ -1,0 +1,30 @@
+diff --git a/ravenscar_build.gpr b/ravenscar_build.gpr
+index a3e7f04..0f43642 100644
+--- a/ravenscar_build.gpr
++++ b/ravenscar_build.gpr
+@@ -19,6 +19,10 @@ project Ravenscar_Build is
+ 
+    for Source_Dirs use ("gnarl_user", "gnarl");
+ 
++   --  Set to "True" when running GNATprove, so that it does not analyse
++   --  the runtime's own sources.
++   for Externally_Built use external ("RUNTIME_EXTERNALLY_BUILT", "False");
++
+    package Naming is
+       for Spec ("Ada.Interrupts.Names") use
+         "a-intnam-F746.ads";
+diff --git a/runtime_build.gpr b/runtime_build.gpr
+index 56e3eef..dde6514 100644
+--- a/runtime_build.gpr
++++ b/runtime_build.gpr
+@@ -17,6 +17,10 @@ project Runtime_Build is
+ 
+   for Source_Dirs use ("gnat_user", "gnat");
+ 
++  --  Set to "True" when running GNATprove, so that it does not analyse
++  --  the runtime's own sources.
++  for Externally_Built use external ("RUNTIME_EXTERNALLY_BUILT", "False");
++
+   Excluded_Sources := ();
+ 
+   --  STM32F746 runtime default memory layout.

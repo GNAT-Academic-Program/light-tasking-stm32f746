@@ -56,7 +56,7 @@ package Light_Tasking_Stm32f746_Config is
    PLL_Q_Div : constant :=  9;
 
    type Build_Profile_Kind is (release, validation, development);
-   Build_Profile : constant Build_Profile_Kind := release;
+   Build_Profile : constant Build_Profile_Kind := development;
 
    PLL_N_Mul_First : constant :=  50;
    PLL_N_Mul_Last : constant :=  432;

@@ -11,10 +11,13 @@ abstract project Light_Tasking_Stm32f746_Config is
    Ada_Compiler_Switches := External_As_List ("ADAFLAGS", " ");
    Ada_Compiler_Switches := Ada_Compiler_Switches &
           (
-            "-O3" -- Optimize for performance
-           ,"-gnatn" -- Enable inlining
+            "-Og" -- Optimize for debug
            ,"-ffunction-sections" -- Separate ELF section for each function
            ,"-fdata-sections" -- Separate ELF section for each variable
+           ,"-g" -- Generate debug info
+           ,"-gnatwa" -- Enable all warnings
+           ,"-gnatw.X" -- Disable warnings for No_Exception_Propagation
+           ,"-gnatVa" -- All validity checks
            ,"-gnatW8" -- UTF-8 encoding for wide characters
           );
 
@@ -60,7 +63,7 @@ abstract project Light_Tasking_Stm32f746_Config is
    PLL_Q_Div := "9";
 
    type Build_Profile_Kind is ("release", "validation", "development");
-   Build_Profile : Build_Profile_Kind := "release";
+   Build_Profile : Build_Profile_Kind := "development";
 
    PLL_N_Mul_First := "50";
    PLL_N_Mul_Last := "432";

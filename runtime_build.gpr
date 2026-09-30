@@ -17,6 +17,10 @@ project Runtime_Build is
 
   for Source_Dirs use ("gnat_user", "gnat");
 
+  --  Set to "True" when running GNATprove, so that it does not analyse
+  --  the runtime's own sources.
+  for Externally_Built use external ("RUNTIME_EXTERNALLY_BUILT", "False");
+
   Excluded_Sources := ();
 
   --  STM32F746 runtime default memory layout.
